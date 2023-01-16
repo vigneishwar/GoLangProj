@@ -40,8 +40,29 @@ func (uc UserController) GetUser(w http.ResponseWriter, r *http.Request, p httpr
 		fmt.Println(err)
 	}
 
-	w.Header().Set("content-type", "application/json")
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprint(w, "%s\n", uj)
 
+}
+
+func (uc UserController) CreateUser(w http.ResponseWriter, r *http.Request, _httprouter.Params) {
+	u := models.User{}
+
+	json.NewDecoder(r.Body).Decode(&u)
+
+	u.Id = bson.NewObjectId()
+
+	uc.Session.DB("mongo-go-lang").C("users").Insert(u)
+
+	uj, err := json.Marshal(u)
+
+	if err != nil {
+
+		fmt.Println(err)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	fmt.Fprintf(w, "%s\n", uj)
 }
