@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
+	"github.com/vigneishwar/go-lang-mongodb/models"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -27,10 +28,10 @@ func (uc UserController) GetUser(w http.ResponseWriter, r *http.Request, p httpr
 		w.WriteHeader(http.StatusNotFound) // WriteHEader means error code like 404
 	}
 
-	oid := bson.ObjectHex(id)
+	oid := bson.ObjectIdHex(id)
 	u := models.User{}
 
-	if err := uc.Session.DB("mongo-go-lang").C("users").FindId(oid).One(&u); err != nil {
+	if err := uc.session.DB("mongo-go-lang").C("users").FindId(oid).One(&u); err != nil {
 		w.WriteHeader(404)
 		return
 	}
@@ -46,14 +47,14 @@ func (uc UserController) GetUser(w http.ResponseWriter, r *http.Request, p httpr
 
 }
 
-func (uc UserController) CreateUser(w http.ResponseWriter, r *http.Request, _httprouter.Params) {
+func (uc UserController) CreateUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	u := models.User{}
 
 	json.NewDecoder(r.Body).Decode(&u)
 
 	u.Id = bson.NewObjectId()
 
-	uc.Session.DB("mongo-go-lang").C("users").Insert(u)
+	uc.session.DB("mongo-go-lang").C("users").Insert(u)
 
 	uj, err := json.Marshal(u)
 
@@ -65,4 +66,24 @@ func (uc UserController) CreateUser(w http.ResponseWriter, r *http.Request, _htt
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	fmt.Fprintf(w, "%s\n", uj)
+}
+
+func (uc UserController) DeleteUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+
+	id := p.ByName("id")
+
+	if !bson.IsObjectIdHex(id) {
+
+		w.WriteHeader(404)
+		return
+	}
+
+	oid := bson.ObjectIdHex(id)
+
+	if err := uc.session.DB("mongo-go-lang").C("users").RemoveId(oid); err != nil {
+		w.WriteHeader(404)
+	}
+
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintf(w, "Deleted User", oid, "\n")
 }
