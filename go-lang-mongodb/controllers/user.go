@@ -43,11 +43,11 @@ func (uc UserController) GetUser(w http.ResponseWriter, r *http.Request, p httpr
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprint(w, "%s\n", uj)
+	fmt.Fprintf(w, "%s\n", uj)
 
 }
 
-func (uc UserController) CreateUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (uc UserController) CreateUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	u := models.User{}
 
 	json.NewDecoder(r.Body).Decode(&u)
@@ -85,5 +85,5 @@ func (uc UserController) DeleteUser(w http.ResponseWriter, r *http.Request, p ht
 	}
 
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "Deleted User", oid, "\n")
+	fmt.Fprint(w, "Deleted User", oid, "\n")
 }
