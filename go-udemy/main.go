@@ -5,11 +5,9 @@ import "fmt"
 func main() {
 	// var card string = "ace of spade"
 
-	card := newCard()
+	card := "ace"
 
 	fmt.Println(card)
-}
-
-func newCard() string {
-	return "five of diamonds"
+	// %T returns the type of the variable instead of the value itself
+	fmt.Printf("the type of card is %T\n", card)
 }
